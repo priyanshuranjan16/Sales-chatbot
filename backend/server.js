@@ -48,6 +48,38 @@ const getDateRange = (timeFilter) => {
     // Convert timeFilter to lowercase once for the switch statement
     const lowerCaseTimeFilter = timeFilter.toLowerCase();
 
+    // Try to parse specific date strings like "July 1st" or "1st July"
+    const monthDayRegex = /(january|february|march|april|may|june|july|august|september|october|november|december)\s+(\d{1,2})(?:st|nd|rd|th)?/i;
+    const dayMonthRegex = /(\d{1,2})(?:st|nd|rd|th)?\s+(january|february|march|april|may|june|july|august|september|october|november|december)/i;
+    const monthNames = ["january", "february", "march", "april", "may", "june",
+        "july", "august", "september", "october", "november", "december"];
+
+    let match = lowerCaseTimeFilter.match(monthDayRegex);
+    if (!match) {
+        match = lowerCaseTimeFilter.match(dayMonthRegex);
+        if (match) { // If day-month format, swap to month-day for consistent parsing
+            match = [match[0], match[2], match[1]];
+        }
+    }
+
+    if (match) {
+        const monthName = match[1];
+        const day = parseInt(match[2], 10);
+        const monthIndex = monthNames.indexOf(monthName);
+        const currentYear = today.getFullYear();
+
+        if (monthIndex !== -1 && day >= 1 && day <= 31) { // Basic day validation
+            const specificDate = new Date(currentYear, monthIndex, day);
+            // Check if the date is valid and falls within the current year for simplicity
+            if (!isNaN(specificDate.getTime()) && specificDate.getFullYear() === currentYear) {
+                startDate = specificDate;
+                endDate = specificDate;
+                return { startDate: formatDate(startDate), endDate: formatDate(endDate) };
+            }
+        }
+    }
+
+
     switch (lowerCaseTimeFilter) {
         case 'today':
             startDate = today;
@@ -118,22 +150,33 @@ const getDateRange = (timeFilter) => {
             endDate = new Date(today.getFullYear(), today.getMonth(), 0); // Last day of last month
             break;
         default:
-            // Handle specific month names (e.g., "July")
-            const monthNames = ["january", "february", "march", "april", "may", "june",
-                "july", "august", "september", "october", "november", "december"];
-            const monthIndex = monthNames.indexOf(lowerCaseTimeFilter);
-            if (monthIndex !== -1) {
-                startDate = new Date(today.getFullYear(), monthIndex, 1);
-                endDate = new Date(today.getFullYear(), monthIndex + 1, 0); // Last day of the month
-                // If the requested month is in the future, adjust year or handle as no data
-                if (startDate > today) {
-                    startDate = null; // Indicate no valid range
-                    endDate = null;
-                } else if (endDate > today) {
-                    endDate = today; // If month is current, end at today
+            // Attempt to parse as a specific date (YYYY-MM-DD)
+            const dateRegex = /^\d{4}-\d{2}-\d{2}$/;
+            if (dateRegex.test(timeFilter)) {
+                const parsedDate = new Date(timeFilter);
+                // Check if the parsedDate is valid (e.g., not "Invalid Date")
+                if (!isNaN(parsedDate.getTime())) {
+                    startDate = parsedDate;
+                    endDate = parsedDate;
+                } else {
+                    // Handle specific month names (e.g., "July") if not a valid date string
+                    const monthIndex = monthNames.indexOf(lowerCaseTimeFilter);
+                    if (monthIndex !== -1) {
+                        startDate = new Date(today.getFullYear(), monthIndex, 1);
+                        endDate = new Date(today.getFullYear(), monthIndex + 1, 0); // Last day of the month
+                        if (startDate > today) {
+                            startDate = null;
+                            endDate = null;
+                        } else if (endDate > today) {
+                            endDate = today;
+                        }
+                    } else {
+                        startDate = null;
+                        endDate = null;
+                    }
                 }
             } else {
-                // If it's not a recognized time filter or month name, return null dates
+                // If it's not a recognized time filter, month name, or valid date string
                 startDate = null;
                 endDate = null;
             }
@@ -163,9 +206,9 @@ app.post('/api/chat', async (req, res) => {
             parts: [{
                 text: `Parse the following sales query into a structured JSON object.
                 Extract the 'query_type' (e.g., 'total_sales', 'average_revenue', 'items_sold', 'total_quantity', 'sales_for_store', 'most_profitable_store', 'least_profitable_store'),
-                'time_filter' (e.g., 'today', 'yesterday', 'last week', 'this month', 'last weekend', 'past 3 days', 'this weekend', or a specific month name like 'July'),
+                'time_filter' (e.g., 'today', 'yesterday', 'last week', 'this month', 'last weekend', 'past 3 days', 'this weekend', or a specific month name like 'July' or a specific date like '2025-07-21' or 'July 1st'),
                 'store_name' (if specified, otherwise null), and 'item_name' (if specified, otherwise null).
-                If a month is mentioned (e.g., 'July'), set 'time_filter' to that month name.
+                If a month is mentioned (e.g., 'July'), set 'time_filter' to that month name. If a specific date is mentioned (e.g., '2025-07-21' or 'July 1st'), set 'time_filter' to the 'YYYY-MM-DD' date string.
 
                 Examples:
                 - "What was the total sales yesterday?" -> {"query_type": "total_sales", "time_filter": "yesterday", "store_name": null, "item_name": null}
@@ -181,6 +224,10 @@ app.post('/api/chat', async (req, res) => {
                 - "Which store made the least profit?" -> {"query_type": "least_profitable_store", "time_filter": null, "store_name": null, "item_name": null}
                 - "Which store had the lowest sales this week?" -> {"query_type": "least_profitable_store", "time_filter": "this week", "store_name": null, "item_name": null}
                 - "What were the sales this weekend?" -> {"query_type": "total_sales", "time_filter": "this weekend", "store_name": null, "item_name": null}
+                - "How many items were sold on 2025-07-20?" -> {"query_type": "items_sold", "time_filter": "2025-07-20", "store_name": null, "item_name": null}
+                - "What was the total revenue on 2025-07-15?" -> {"query_type": "total_sales", "time_filter": "2025-07-15", "store_name": null, "item_name": null}
+                - "What were the sales on July 1st?" -> {"query_type": "total_sales", "time_filter": "2025-07-01", "store_name": null, "item_name": null}
+                - "How many items sold on 1st August?" -> {"query_type": "items_sold", "time_filter": "2025-08-01", "store_name": null, "item_name": null}
 
                 Query: "${userQuery}"`
             }]

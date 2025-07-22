@@ -72,17 +72,17 @@ INSERT INTO sale_records (store, date, item_name, quantity, revenue) VALUES
 ('Store C', CURRENT_DATE, 'Watches', 3, 4500);
 
 
-## 2️⃣ Backend Setup (backend/)
+ 2️⃣ Backend Setup (backend/)
 
-### Step 1: Navigate to backend folder
+ Step 1: Navigate to backend folder
 
 - cd backend
 
-### Step 2: Install dependencies
+ Step 2: Install dependencies
 
 - npm install
 
-### Step 3: Create .env file
+ Step 3: Create .env file
 
 SUPABASE_URL=https://your-project.supabase.co
 SUPABASE_ANON_KEY=your-anon-key
@@ -91,21 +91,21 @@ PORT=3001
 
 ⚠️ Replace placeholders with your actual Supabase and Gemini credentials.
 
-### Step 4: Start backend server
+ Step 4: Start backend server
 
 - node server.js
 
-## 3️⃣ Frontend Setup (frontend/)
+ 3️⃣ Frontend Setup (frontend/)
 
-### Step 1: Navigate to frontend
+ Step 1: Navigate to frontend
 
 - cd frontend
 
-### Step 2: Install dependencies
+ Step 2: Install dependencies
 
 - npm install
 
-### Step 3: Start frontend
+ Step 3: Start frontend
 
 - npm run dev
 

@@ -65,11 +65,7 @@ CREATE TABLE sale_records (
 ---
 
 
-INSERT INTO sale_records (store, date, item_name, quantity, revenue) VALUES
-('Store A', CURRENT_DATE - 1, 'Shoes', 10, 5000),
-('Store B', CURRENT_DATE - 1, 'Bags', 5, 2500),
-('Store A', CURRENT_DATE, 'Shoes', 7, 3500),
-('Store C', CURRENT_DATE, 'Watches', 3, 4500);
+The sample data is added in the sampledata file.
 
 
  2️⃣ Backend Setup (backend/)

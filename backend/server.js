@@ -277,17 +277,26 @@ app.post('/api/chat', async (req, res) => {
         console.log("Gemini API Raw Result:", JSON.stringify(llmResult, null, 2));
 
 
-        if (!llmResult.candidates || llmResult.candidates.length === 0 ||
+// This is a defensive check before parsing the LLM's actual content (like JSON.parse(llmResult.candidates[0].content.parts[0].text)).
+
+// It prevents your app from crashing if Gemini responds unexpectedly or incompletely.
+
+
+
+        if (!llmResult.candidates || llmResult.candidates.length === 0 || 
             !llmResult.candidates[0].content || !llmResult.candidates[0].content.parts ||
             llmResult.candidates[0].content.parts.length === 0) {
             console.error("Unexpected LLM response structure:", JSON.stringify(llmResult, null, 2));
             return res.status(500).json({ error: "Could not parse your query. Please try rephrasing." });
         }
 
-        const parsedQueryJsonString = llmResult.candidates[0].content.parts[0].text;
+        const parsedQueryJsonString = llmResult.candidates[0].content.parts[0].text; 
+        // This accesses the actual stringified JSON response from Gemini.
+
+
         let parsedQuery;
         try {
-            parsedQuery = JSON.parse(parsedQueryJsonString);
+            parsedQuery = JSON.parse(parsedQueryJsonString);  // Parse the JSON string into an object
         } catch (jsonParseError) {
             console.error("Error parsing LLM JSON response:", jsonParseError);
             console.error("Raw LLM response text:", parsedQueryJsonString);

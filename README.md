@@ -1,43 +1,58 @@
-AI Sales Chatbot
-This project is a simple AI chatbot designed to answer sales-related questions using natural language. It connects to a Supabase PostgreSQL database for data and leverages the Google Gemini API for natural language understanding and query parsing.
+# 🧠 AI Sales Chatbot
 
-Features
-Natural Language Queries: Ask questions like "What was the total sales yesterday?", "Which store made the most profit?", or "How many items were sold today?".
+A simple AI-powered chatbot that answers **sales-related questions** using **natural language**. It connects to a **Supabase PostgreSQL** database and uses the **Google Gemini API** to intelligently parse queries and provide insights in real time.
 
-Time Filters: Supports fuzzy time filters (e.g., "last week", "this month", "July").
+---
 
-Sales Data Analysis: Retrieves and processes sales data from Supabase.
+## ✨ Features
 
-User-Friendly Responses: Provides clear, concise answers.
+- 🔍 Natural language sales queries
+- 🗓️ Fuzzy time filters like "this month", "last week"
+- 📊 Real-time sales data analysis via Supabase
+- 💬 Conversational responses using Gemini AI
+- 🖥️ Clean React-based chat UI with Tailwind CSS
 
-Minimal UI: A straightforward React-based chat interface.
+---
 
-Tech Stack
-Frontend: React.js (with Tailwind CSS)
+## 🧰 Tech Stack
 
-Backend: Node.js (Express.js)
+| Layer      | Technology               |
+|------------|---------------------------|
+| Frontend   | React.js + Tailwind CSS   |
+| Backend    | Node.js + Express.js      |
+| Database   | Supabase (PostgreSQL)     |
+| AI / NLP   | Google Gemini API (v2.0)  |
 
-Database: Supabase (PostgreSQL)
+---
 
-AI/NLP: Google Gemini API (gemini-2.0-flash)
+## ⚙️ Full Setup Guide
 
-Setup Instructions
-To run this project locally, follow these steps:
+### ✅ Prerequisites
 
-Prerequisites
-Node.js (LTS version) and npm
+- [Node.js](https://nodejs.org/) (LTS version)
+- A [Supabase](https://supabase.com/) account
+- A [Google Gemini API key](https://aistudio.google.com/app/apikey)
 
-A Supabase project with a sale_records table (see detailed instructions below).
+---
 
-A Google Gemini API key.
+## 1️⃣ Supabase Setup
 
-1. Supabase Database Setup
-Create Project: Go to Supabase, create a new project. Get your Project URL and anon (public) key from "Project Settings" > "API".
+### Step 1: Create Supabase Project
+- Go to [https://supabase.com](https://supabase.com) and create a new project.
+- Copy your:
+  - **Project URL**
+  - **Anon/public API Key**  
+  *(Found under Project Settings → API)*
 
-Enable uuid-ossp: In "Database" > "Extensions", enable uuid-ossp.
+### Step 2: Enable UUID Extension
+- Navigate to: `Database > Extensions`
+- Enable `uuid-ossp`
 
-Create Table: In "SQL Editor", run this SQL:
+### Step 3: Create Sales Table
 
+Go to the **SQL Editor** and run:
+
+```sql
 CREATE TABLE sale_records (
   id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
   store TEXT NOT NULL,
@@ -47,36 +62,63 @@ CREATE TABLE sale_records (
   revenue FLOAT NOT NULL
 );
 
-Populate Data: In "SQL Editor", insert sample data (provided in the full README/conversation history).
 
-2. Backend Setup (chatbot-backend directory)
-Navigate: cd chatbot-backend
 
-Install: npm install
+INSERT INTO sale_records (store, date, item_name, quantity, revenue) VALUES
+('Store A', CURRENT_DATE - 1, 'Shoes', 10, 5000),
+('Store B', CURRENT_DATE - 1, 'Bags', 5, 2500),
+('Store A', CURRENT_DATE, 'Shoes', 7, 3500),
+('Store C', CURRENT_DATE, 'Watches', 3, 4500);
 
-Create .env: In chatbot-backend, create .env file with:
 
-SUPABASE_URL="https://YOUR_SUPABASE_PROJECT_REF.supabase.co"
-SUPABASE_ANON_KEY="YOUR_SUPABASE_ANON_KEY"
-GEMINI_API_KEY="YOUR_GEMINI_API_KEY"
+2️⃣ Backend Setup (backend/)
+
+Step 1: Navigate to backend folder
+
+cd backend
+
+Step 2: Install dependencies
+
+npm install
+
+Step 3: Create .env file
+
+SUPABASE_URL=https://your-project.supabase.co
+SUPABASE_ANON_KEY=your-anon-key
+GEMINI_API_KEY=your-gemini-api-key
 PORT=3001
 
-(Replace placeholders with your actual keys. Ensure SUPABASE_URL does NOT contain credentials.)
+⚠️ Replace placeholders with your actual Supabase and Gemini credentials.
 
-Start Server: node server.js (Keep terminal open)
+Step 4: Start backend server
 
-3. Frontend Setup (chatbot-frontend directory)
-Navigate: cd chatbot-frontend
+node server.js
 
-Install: npm install
+3️⃣ Frontend Setup (frontend/)
 
-Tailwind CSS: Ensure tailwind.config.js and src/index.css (or App.css) are configured for Tailwind and Inter font (refer to full README/conversation history for exact content).
+Step 1: Navigate to frontend
 
-Start Server: npm run dev (Keep terminal open)
+cd frontend
 
-Usage
-Ensure both backend and frontend servers are running.
+Step 2: Install dependencies
 
-Open your browser to http://localhost:5173.
+npm install
 
-Type your sales questions in the chat interface.
+Step 5: Start frontend
+
+npm run dev
+
+
+🧪 Usage
+Ask:
+"What was the total sales yesterday?"
+"Which store had the highest revenue this week?"
+"How many items were sold in July?"
+
+The bot will generate an SQL query, fetch data from Supabase, and respond.
+
+
+
+✨ Thank You!
+Built with ❤️ using React, Supabase, and Gemini.
+
